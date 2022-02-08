@@ -1,1 +1,4 @@
-data/
+.idea/
+__pycache__/
+beta-vae/comparisons/
+beta-vae/checkpoints/
