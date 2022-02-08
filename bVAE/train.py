@@ -6,6 +6,7 @@ import preprocess as prep
 import models
 import utils
 from torchvision.utils import save_image
+import argparse
 
 
 def train(model, device, train_loader, optimizer, epoch, log_interval):
@@ -65,22 +66,34 @@ def test(model, device, test_loader, return_images=0, log_interval=None):
 
     return test_loss
 
+parser = argparse.ArgumentParser()
+parser.add_argument('--batch-size', default=256, type=int)
+parser.add_argument('--test-batch-size', default=10, type=int)
+parser.add_argument('--epochs', default=1200, type=int)
+parser.add_argument('--latent-size', default=100, type=int)
+parser.add_argument('--learning-rate', default=1e-2, type=float)
+parser.add_argument('--use-cuda', default=True, action='store_true')
+parser.add_argument('--print-interval', default=100, type=int)
+parser.add_argument('--log-path', default='./logs/log.pkl', type=str)
+parser.add_argument('--model-path', default='./checkpoints/', type=str)
+parser.add_argument('--compare-path', default='./comparisons/', type=str)
+args = parser.parse_args()
 
 # parameters
-BATCH_SIZE = 256
-TEST_BATCH_SIZE = 10
-EPOCHS = 1200
+#BATCH_SIZE = 256
+#TEST_BATCH_SIZE = 10
+#EPOCHS = 1200
 
-LATENT_SIZE = 100
-LEARNING_RATE = 1e-2
+#LATENT_SIZE = 100
+#LEARNING_RATE = 1e-2
 
-USE_CUDA = True
-PRINT_INTERVAL = 100
-LOG_PATH = './logs/log.pkl'
-MODEL_PATH = './checkpoints/'
-COMPARE_PATH = './comparisons/'
+#USE_CUDA = True
+#PRINT_INTERVAL = 100
+#LOG_PATH = './logs/log.pkl'
+#MODEL_PATH = './checkpoints/'
+#COMPARE_PATH = './comparisons/'
 
-use_cuda = USE_CUDA and torch.cuda.is_available()
+use_cuda = args.use_cuda and torch.cuda.is_available()
 device = torch.device("cuda" if use_cuda else "cpu")
 print('Using device', device)
 print('num cpus:', multiprocessing.cpu_count())
@@ -111,29 +124,28 @@ data_train = datasets.ImageFolder(os.path.join(data_dir, 'train'), transform =  
 data_test = datasets.ImageFolder(os.path.join(data_dir, 'val'), transform =  im_transform)
 ################################
 
-train_loader = torch.utils.data.DataLoader(data_train, batch_size=BATCH_SIZE, shuffle=True, **kwargs)
-test_loader = torch.utils.data.DataLoader(data_test, batch_size=TEST_BATCH_SIZE, shuffle=True, **kwargs)
+train_loader = torch.utils.data.DataLoader(data_train, batch_size=args.batch_size, shuffle=True, **kwargs)
+test_loader = torch.utils.data.DataLoader(data_test, batch_size=args.test_batch_size, shuffle=True, **kwargs)
 
-print('latent size:', LATENT_SIZE)
+print('latent size:', args.latent_size)
 
-model = models.BetaVAE(latent_size=LATENT_SIZE, beta = 5).to(device)
+model = models.BetaVAE(latent_size=args.latent_size, beta = 5).to(device)
 # model = models.DFCVAE(latent_size=LATENT_SIZE).to(device)
 
-optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE)
+optimizer = optim.Adam(model.parameters(), lr=args.learning_rate)
 
 if __name__ == "__main__":
+    start_epoch = model.load_last_model(args.model_path) + 1
+    train_losses, test_losses = utils.read_log(args.log_path, ([], []))
 
-    start_epoch = model.load_last_model(MODEL_PATH) + 1
-    train_losses, test_losses = utils.read_log(LOG_PATH, ([], []))
-
-    for epoch in range(start_epoch, EPOCHS + 1):
-        train_loss = train(model, device, train_loader, optimizer, epoch, PRINT_INTERVAL)
+    for epoch in range(start_epoch, args.epochs + 1):
+        train_loss = train(model, device, train_loader, optimizer, epoch, args.print_interval)
         test_loss, original_images, rect_images = test(model, device, test_loader, return_images=5)
 
-        save_image(original_images + rect_images, COMPARE_PATH + str(epoch) + '.png', padding=0, nrow=len(original_images))
+        save_image(original_images + rect_images, args.compare_path + str(epoch) + '.png', padding=0, nrow=len(original_images))
 
         train_losses.append((epoch, train_loss))
         test_losses.append((epoch, test_loss))
-        utils.write_log(LOG_PATH, (train_losses, test_losses))
+        utils.write_log(args.log_path, (train_losses, test_losses))
 
-        model.save_model(MODEL_PATH + '%03d.pt' % epoch)
+        model.save_model(args.model_path + '%03d.pt' % epoch)
