@@ -79,19 +79,16 @@ parser.add_argument('--model-path', default='../../trained_models/checkpoints/',
 parser.add_argument('--compare-path', default='../../figures/comparisons/', type=str)
 args = parser.parse_args()
 
-# parameters
-#BATCH_SIZE = 256
-#TEST_BATCH_SIZE = 10
-#EPOCHS = 1200
 
-#LATENT_SIZE = 100
-#LEARNING_RATE = 1e-2
+def dict2string(d, keys):
+    s = ''
+    for k in keys:
+        s += f'{k}_{d[k]}_'
+    return s
 
-#USE_CUDA = True
-#PRINT_INTERVAL = 100
-#LOG_PATH = './logs/log.pkl'
-#MODEL_PATH = './checkpoints/'
-#COMPARE_PATH = './comparisons/'
+
+hyperparams = dict2string(args.__dict__,
+                          ['latent_size', 'batch_size', 'learning_rate', 'epochs'])
 
 use_cuda = args.use_cuda and torch.cuda.is_available()
 device = torch.device("cuda" if use_cuda else "cpu")
@@ -142,10 +139,14 @@ if __name__ == "__main__":
         train_loss = train(model, device, train_loader, optimizer, epoch, args.print_interval)
         test_loss, original_images, rect_images = test(model, device, test_loader, return_images=5)
 
-        save_image(original_images + rect_images, args.compare_path + str(epoch) + '.png', padding=0, nrow=len(original_images))
+        path_comparison = os.path.join(args.compare_path, hyperparams)
+        os.makedirs(path_comparison, exist_ok=True)
+        save_image(original_images + rect_images,
+                   os.path.join(path_comparison, f'{epoch}.png'),
+                   padding=0, nrow=len(original_images))
 
         train_losses.append((epoch, train_loss))
         test_losses.append((epoch, test_loss))
         utils.write_log(args.log_path, (train_losses, test_losses))
 
-        model.save_model(args.model_path + '%03d.pt' % epoch)
+        model.save_model(os.path.join(args.model_path, f'{hyperparams}{epoch}.pt'))

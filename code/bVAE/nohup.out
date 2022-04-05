@@ -1,0 +1,92 @@
+Using device cuda
+num cpus: 32
+latent size: 128
+Restoring:
+encoder.0.0.weight -> 	torch.Size([32, 3, 4, 4]) = 0MB
+encoder.0.0.bias -> 	torch.Size([32]) = 0MB
+encoder.0.1.weight -> 	torch.Size([32]) = 0MB
+encoder.0.1.bias -> 	torch.Size([32]) = 0MB
+encoder.0.1.running_mean -> 	torch.Size([32]) = 0MB
+encoder.0.1.running_var -> 	torch.Size([32]) = 0MB
+encoder.0.1.num_batches_tracked -> 	torch.Size([]) = 0MB
+encoder.1.0.weight -> 	torch.Size([32, 32, 4, 4]) = 0MB
+encoder.1.0.bias -> 	torch.Size([32]) = 0MB
+encoder.1.1.weight -> 	torch.Size([32]) = 0MB
+encoder.1.1.bias -> 	torch.Size([32]) = 0MB
+encoder.1.1.running_mean -> 	torch.Size([32]) = 0MB
+encoder.1.1.running_var -> 	torch.Size([32]) = 0MB
+encoder.1.1.num_batches_tracked -> 	torch.Size([]) = 0MB
+encoder.2.0.weight -> 	torch.Size([64, 32, 4, 4]) = 0MB
+encoder.2.0.bias -> 	torch.Size([64]) = 0MB
+encoder.2.1.weight -> 	torch.Size([64]) = 0MB
+encoder.2.1.bias -> 	torch.Size([64]) = 0MB
+encoder.2.1.running_mean -> 	torch.Size([64]) = 0MB
+encoder.2.1.running_var -> 	torch.Size([64]) = 0MB
+encoder.2.1.num_batches_tracked -> 	torch.Size([]) = 0MB
+encoder.3.0.weight -> 	torch.Size([64, 64, 4, 4]) = 0MB
+encoder.3.0.bias -> 	torch.Size([64]) = 0MB
+encoder.3.1.weight -> 	torch.Size([64]) = 0MB
+encoder.3.1.bias -> 	torch.Size([64]) = 0MB
+encoder.3.1.running_mean -> 	torch.Size([64]) = 0MB
+encoder.3.1.running_var -> 	torch.Size([64]) = 0MB
+encoder.3.1.num_batches_tracked -> 	torch.Size([]) = 0MB
+fc_mu.weight -> 	torch.Size([128, 256]) = 0MB
+fc_mu.bias -> 	torch.Size([128]) = 0MB
+fc_var.weight -> 	torch.Size([128, 256]) = 0MB
+fc_var.bias -> 	torch.Size([128]) = 0MB
+decoder.0.0.weight -> 	torch.Size([64, 64, 4, 4]) = 0MB
+decoder.0.0.bias -> 	torch.Size([64]) = 0MB
+decoder.0.1.weight -> 	torch.Size([64]) = 0MB
+decoder.0.1.bias -> 	torch.Size([64]) = 0MB
+decoder.0.1.running_mean -> 	torch.Size([64]) = 0MB
+decoder.0.1.running_var -> 	torch.Size([64]) = 0MB
+decoder.0.1.num_batches_tracked -> 	torch.Size([]) = 0MB
+decoder.1.0.weight -> 	torch.Size([64, 32, 4, 4]) = 0MB
+decoder.1.0.bias -> 	torch.Size([32]) = 0MB
+decoder.1.1.weight -> 	torch.Size([32]) = 0MB
+decoder.1.1.bias -> 	torch.Size([32]) = 0MB
+decoder.1.1.running_mean -> 	torch.Size([32]) = 0MB
+decoder.1.1.running_var -> 	torch.Size([32]) = 0MB
+decoder.1.1.num_batches_tracked -> 	torch.Size([]) = 0MB
+decoder.2.0.weight -> 	torch.Size([32, 32, 4, 4]) = 0MB
+decoder.2.0.bias -> 	torch.Size([32]) = 0MB
+decoder.2.1.weight -> 	torch.Size([32]) = 0MB
+decoder.2.1.bias -> 	torch.Size([32]) = 0MB
+decoder.2.1.running_mean -> 	torch.Size([32]) = 0MB
+decoder.2.1.running_var -> 	torch.Size([32]) = 0MB
+decoder.2.1.num_batches_tracked -> 	torch.Size([]) = 0MB
+decoder.3.0.weight -> 	torch.Size([32, 3, 4, 4]) = 0MB
+decoder.3.0.bias -> 	torch.Size([3]) = 0MB
+decoder.3.1.weight -> 	torch.Size([3]) = 0MB
+decoder.3.1.bias -> 	torch.Size([3]) = 0MB
+decoder.3.1.running_mean -> 	torch.Size([3]) = 0MB
+decoder.3.1.running_var -> 	torch.Size([3]) = 0MB
+decoder.3.1.num_batches_tracked -> 	torch.Size([]) = 0MB
+fc_z.weight -> 	torch.Size([256, 128]) = 0MB
+fc_z.bias -> 	torch.Size([256]) = 0MB
+
+Restored all variables
+No new variables
+Restored ../../trained_models/checkpoints/latent_size_128_batch_size_128_learning_rate_0.01_epochs_1200_1.pt
+Tue Apr  5 16:26:35 2022 Train Epoch: 2 [0/85176 (0%)]	Loss: 1783.178345
+Tue Apr  5 16:26:50 2022 Train Epoch: 2 [12800/85176 (15%)]	Loss: 666.876282
+Tue Apr  5 16:27:04 2022 Train Epoch: 2 [25600/85176 (30%)]	Loss: 520.385498
+Tue Apr  5 16:27:18 2022 Train Epoch: 2 [38400/85176 (45%)]	Loss: 492.747345
+Tue Apr  5 16:27:33 2022 Train Epoch: 2 [51200/85176 (60%)]	Loss: 477.026428
+Tue Apr  5 16:27:48 2022 Train Epoch: 2 [64000/85176 (75%)]	Loss: 411.862152
+Tue Apr  5 16:28:02 2022 Train Epoch: 2 [76800/85176 (90%)]	Loss: 452.799011
+Train set Average loss: 557.7007379846888
+Test set Average loss: 627.130041584065
+Saved ../../trained_models/checkpoints/latent_size_128_batch_size_128_learning_rate_0.01_epochs_1200_2.pt
+
+Tue Apr  5 16:28:42 2022 Train Epoch: 3 [0/85176 (0%)]	Loss: 430.675232
+Tue Apr  5 16:28:55 2022 Train Epoch: 3 [12800/85176 (15%)]	Loss: 450.479401
+Tue Apr  5 16:29:09 2022 Train Epoch: 3 [25600/85176 (30%)]	Loss: 405.435852
+Tue Apr  5 16:29:23 2022 Train Epoch: 3 [38400/85176 (45%)]	Loss: 426.766357
+Tue Apr  5 16:29:36 2022 Train Epoch: 3 [51200/85176 (60%)]	Loss: 384.830841
+Tue Apr  5 16:29:51 2022 Train Epoch: 3 [64000/85176 (75%)]	Loss: 392.062958
+Tue Apr  5 16:30:05 2022 Train Epoch: 3 [76800/85176 (90%)]	Loss: 416.417023
+Train set Average loss: 410.64007316337336
+Test set Average loss: 431.5784731322784
+Saved ../../trained_models/checkpoints/latent_size_128_batch_size_128_learning_rate_0.01_epochs_1200_3.pt
+
