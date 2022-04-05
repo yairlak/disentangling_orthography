@@ -39,8 +39,8 @@ def split_data(imgs, fraction_train, fraction_val):
 
     n_train_imgs = len(IXs_train)
     ed = int(n_train_imgs*fraction_val) # fraction of val data from train
-    IXs_val = IXs_train[:ed]
-    IXs_train = IXs_train[ed:]
+    IXs_val = IXs_train[ed:]
+    IXs_train = IXs_train[:ed]
     return IXs_train, IXs_val, IXs_test
 
 
