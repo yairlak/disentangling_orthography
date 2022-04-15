@@ -101,8 +101,8 @@ class BetaVAE(nn.Module):
     def load_model(self, file_path):
         utils.restore(self, file_path)
 
-    def load_last_model(self, dir_path):
-        return utils.restore_latest(self, dir_path)
+    def load_last_model(self, dir_path, hyperparams):
+        return utils.restore_latest(self, dir_path, hyperparams)
 
 
 class DFCVAE(BetaVAE):

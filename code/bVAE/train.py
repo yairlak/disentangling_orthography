@@ -9,9 +9,11 @@ from torchvision.utils import save_image
 import argparse
 
 
-def train(model, device, train_loader, optimizer, epoch, log_interval):
+def train(model, device, train_loader, optimizer, epoch, log_interval, return_images=0):
     model.train()
     train_loss = 0
+
+    original_images, rect_images = [], []
 
     for batch_idx, data in enumerate(train_loader):
         data = data[0].to(device)
@@ -23,6 +25,10 @@ def train(model, device, train_loader, optimizer, epoch, log_interval):
 
         train_loss += loss.item()
 
+        if return_images > 0 and len(original_images) < return_images:
+            original_images.append(data[0].cpu())
+            rect_images.append(output[0].cpu())
+        
         if batch_idx % log_interval == 0:
             print('{} Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
                 time.ctime(time.time()), epoch, batch_idx * len(data),
@@ -30,6 +36,9 @@ def train(model, device, train_loader, optimizer, epoch, log_interval):
 
     train_loss /= len(train_loader)
     print('Train set Average loss:', train_loss)
+    
+    if return_images > 0:
+        return train_loss, original_images, rect_images
     return train_loss
 
 
@@ -67,12 +76,13 @@ def test(model, device, test_loader, return_images=0, log_interval=None):
     return test_loss
 
 parser = argparse.ArgumentParser()
+parser.add_argument('--beta', default=5, type=int)
 parser.add_argument('--batch-size', default=256, type=int)
 parser.add_argument('--test-batch-size', default=10, type=int)
-parser.add_argument('--epochs', default=1200, type=int)
+parser.add_argument('--epochs', default=300, type=int)
 parser.add_argument('--latent-size', default=100, type=int)
 parser.add_argument('--learning-rate', default=1e-2, type=float)
-parser.add_argument('--use-cuda', default=True, action='store_true')
+parser.add_argument('--use-cuda', default=False, action='store_true')
 parser.add_argument('--print-interval', default=100, type=int)
 parser.add_argument('--log-path', default='./logs/log.pkl', type=str)
 parser.add_argument('--model-path', default='../../trained_models/checkpoints/', type=str)
@@ -88,7 +98,7 @@ def dict2string(d, keys):
 
 
 hyperparams = dict2string(args.__dict__,
-                          ['latent_size', 'batch_size', 'learning_rate', 'epochs'])
+                          ['beta', 'latent_size', 'batch_size', 'learning_rate', 'epochs'])
 
 use_cuda = args.use_cuda and torch.cuda.is_available()
 device = torch.device("cuda" if use_cuda else "cpu")
@@ -126,24 +136,25 @@ test_loader = torch.utils.data.DataLoader(data_test, batch_size=args.test_batch_
 
 print('latent size:', args.latent_size)
 
-model = models.BetaVAE(latent_size=args.latent_size, beta = 5).to(device)
+model = models.BetaVAE(latent_size=args.latent_size, beta = args.beta).to(device)
 # model = models.DFCVAE(latent_size=LATENT_SIZE).to(device)
 
 optimizer = optim.Adam(model.parameters(), lr=args.learning_rate)
 
 if __name__ == "__main__":
-    start_epoch = model.load_last_model(args.model_path) + 1
+    start_epoch = model.load_last_model(args.model_path, hyperparams) + 1
     train_losses, test_losses = utils.read_log(args.log_path, ([], []))
 
     for epoch in range(start_epoch, args.epochs + 1):
-        train_loss = train(model, device, train_loader, optimizer, epoch, args.print_interval)
-        test_loss, original_images, rect_images = test(model, device, test_loader, return_images=5)
+        train_loss, original_images_train, rect_images_train = train(model, device, train_loader, optimizer,
+                                                                     epoch, args.print_interval, return_images=12)
+        test_loss, original_images_test, rect_images_test = test(model, device, test_loader, return_images=12)
 
         path_comparison = os.path.join(args.compare_path, hyperparams)
         os.makedirs(path_comparison, exist_ok=True)
-        save_image(original_images + rect_images,
+        save_image(original_images_train + rect_images_train + original_images_test + rect_images_test,
                    os.path.join(path_comparison, f'{epoch}.png'),
-                   padding=0, nrow=len(original_images))
+                   padding=0, nrow=len(original_images_train))
 
         train_losses.append((epoch, train_loss))
         test_losses.append((epoch, test_loss))
