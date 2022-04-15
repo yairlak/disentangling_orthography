@@ -80,18 +80,7 @@ parser.add_argument('--compare-path', default='../../figures/comparisons/', type
 args = parser.parse_args()
 
 # parameters
-#BATCH_SIZE = 256
 #TEST_BATCH_SIZE = 10
-#EPOCHS = 1200
-
-#LATENT_SIZE = 100
-#LEARNING_RATE = 1e-2
-
-#USE_CUDA = True
-#PRINT_INTERVAL = 100
-#LOG_PATH = './logs/log.pkl'
-#MODEL_PATH = './checkpoints/'
-#COMPARE_PATH = './comparisons/'
 
 use_cuda = args.use_cuda and torch.cuda.is_available()
 device = torch.device("cuda" if use_cuda else "cpu")
