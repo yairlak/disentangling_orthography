@@ -65,7 +65,7 @@ def restore(net, save_file):
     print('Restored %s' % save_file)
 
 
-def restore_latest(net, folder):
+def restore_latest(net, folder, hyperparams):
     """Restores the most recent weights in a folder
 
     Args:
@@ -75,7 +75,7 @@ def restore_latest(net, folder):
         int: Attempts to parse the epoch from the state and returns it if possible. Otherwise returns 0.
     """
 
-    checkpoints = sorted(glob.glob(folder + '/*.pt'), key=os.path.getmtime)
+    checkpoints = sorted(glob.glob(os.path.join(folder, f'{hyperparams}*.pt')), key=os.path.getmtime)
     start_it = 0
     if len(checkpoints) > 0:
         restore(net, checkpoints[-1])
@@ -101,7 +101,9 @@ def save(net, file_name, num_to_keep=1):
         os.makedirs(folder)
     torch.save(net.state_dict(), file_name)
     extension = os.path.splitext(file_name)[1]
-    checkpoints = sorted(glob.glob(folder + '/*' + extension), key=os.path.getmtime)
+    fn_prefix = os.path.basename(file_name).split('_')
+    fn_prefix = '_'.join(fn_prefix[:-1])
+    checkpoints = sorted(glob.glob(os.path.join(folder, fn_prefix + '*' + extension)), key=os.path.getmtime)
     print('Saved %s\n' % file_name)
     if num_to_keep > 0:
         for ff in checkpoints[:-num_to_keep]:
@@ -184,3 +186,9 @@ def plot(x_values, y_values, title, xlabel, ylabel):
     plt.ylabel(ylabel)
     plt.show()
 
+
+def dict2string(d, keys):
+    s = ''
+    for k in keys:
+        s += f'{k}_{d[k]}_'
+    return s

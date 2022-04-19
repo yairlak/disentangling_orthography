@@ -63,12 +63,6 @@ def CreateWordSet(path_out='../../../data/letters/',
     wordlist = words
     sizes = range(15,31,2)
     fonts = ['arial', 'times', 'comic', 'cour', 'calibri']
-
-    dict_fonts = {}
-    dict_fonts['train'] = ['arial','times']
-    dict_fonts['val'] = ['comic','cour','calibri']
-    dict_fonts['test'] = ['comic','cour','calibri']
-
     xshifts = range(-8, 8,2)
     yshifts = range(-8, 8,2)
 
@@ -107,27 +101,58 @@ def CreateWordSet(path_out='../../../data/letters/',
                 fn = dict2string(metas[IX])
                 imgs[IX].save(os.path.join(path, fn + '.png'))
 
-   # for dataset in ['train', 'val', 'test']:
-   #     for w in wordlist:
-   #         path = os.path.join(path_out, dataset, w)
-   #         os.makedirs(path, exist_ok=True)
-
-   #         n = {'train':n_train, # number of version from each word or letter
-   #              'val':n_val,
-   #              'test':n_test}[dataset]
-   #         
-   #         print(f'generating {n} images for {dataset.upper()} set, word {w.upper()}, and saving to: {path})')
-   #         
-   #         for i in range(n):
-   #             f = random.choice(fonts[dataset])
-   #             s = random.choice(sizes)
-   #             u = random.choice([0, 1])
-   #             x = random.choice(xshift)
-   #             y = random.choice(yshift)
-   #             img = gen2(savepath=path, text=w,
-   #                        index=i, fontname=f, size=s,
-   #                        xshift=x, yshift=y, upper=u)
-   #     
     return 'done'
+
+
+def CreateFalseFonts(path_out='../../../data/letters/',
+                     n_train=1000,
+                     n_val=100,
+                     n_test=100):
+
+    # set seed for replecability
+    random.seed(1111)
     
+    #define words, sizes, fonts
+    wordlist = words
+    sizes = range(15,31,2)
+    fonts = ['ff6'] # the corresponding real-letter font is deffvmonospaced3.ttf
+
+    xshifts = range(-8, 8,2)
+    yshifts = range(-8, 8,2)
+
+    #for each word, create num_train + num_val exemplars, then split randomly into train and val.
+    gc.collect()
+    
+    for word in wordlist:
+        print(f'Generating images for word: {word}')
+        imgs, metas = [], []
+        for size in sizes:
+            for xshift in xshifts:
+                for yshift in yshifts:
+                    for font in fonts:
+                        for upper in [1]: # ff6 false font has only uppercase
+                            #print(size, xshift, yshift, font, upper)
+                            img = gen2(savepath=None, index=None, # no saving
+                                       text=word, fontname=font, size=size,
+                                       xshift=xshift, yshift=yshift, upper=upper)
+                            imgs.append(img)
+                            metas.append({'word':word,
+                                          'size':size,
+                                          'xshift':xshift,
+                                          'yshift':yshift,
+                                          'font':font,
+                                          'upper':upper})
+        
+        
+        for img, meta in zip(imgs, metas):
+            path = os.path.join(path_out, 'false_fonts', meta['word'])
+            os.makedirs(path, exist_ok=True)
+            fn = dict2string(meta)
+            img.save(os.path.join(path, fn + '.png'))
+
+    return 'done'
+
+
+CreateFalseFonts()
 CreateWordSet()
+

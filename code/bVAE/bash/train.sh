@@ -1,15 +1,18 @@
-BATCH_SIZES='128 256'
-LATENT_SIZES='1 2 4 8 16 32 64 128'
-LEARNING_RATES='0.001 0.01 0.1'
+BETAS='0.125 0.25 0.5 1 2 4 8'
+BATCH_SIZES='64 128'
+LATENT_SIZES='1 2 4 8 16 32 64 128 256'
+LEARNING_RATES='0.0001 0.001 0.01'
 
 # NUMBER OF STIMULI
 
-for BATCH_SIZE in $BATCH_SIZES; do
-	for LATENT_SIZE in $LATENT_SIZES; do
-		for LEARNING_RATE in $LEARNING_RATES; do
-			LOG_PATH='log_'$BATCH_SIZE'_'$LATENT_SIZE'_'$LEARNING_RATE'.pkl'
-			cmd='python train.py --batch-size '$BATCH_SIZE' --latent-size '$LATENT_SIZE' --learning-rate '$LEARNING_RATE' --log-path '$LOG_PATH
-			echo $cmd
-		done
-	done
+for BETA in $BETAS; do
+    for BATCH_SIZE in $BATCH_SIZES; do
+        for LATENT_SIZE in $LATENT_SIZES; do
+            for LEARNING_RATE in $LEARNING_RATES; do
+                LOG_PATH='logs/log_beta_'$BETA'_latent_size_'$LATENT_SIZE'_batch_size_'$BATCH_SIZE'_learning_rate_'$LEARNING_RATE'.pkl'
+                cmd='python train.py --beta '$BETA' --batch-size '$BATCH_SIZE' --latent-size '$LATENT_SIZE' --learning-rate '$LEARNING_RATE' --log-path '$LOG_PATH' --use-cuda'
+                echo $cmd
+            done
+        done
+    done
 done
