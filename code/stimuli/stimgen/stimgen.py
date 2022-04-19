@@ -124,7 +124,7 @@ def CreateFalseFonts(path_out='../../../data/letters/',
     gc.collect()
     
     for word in wordlist:
-        print(f'Generating images for word: {word}')
+        print(f'Generating images for false font: {word.upper()}')
         imgs, metas = [], []
         for size in sizes:
             for xshift in xshifts:

@@ -127,12 +127,24 @@ im_transform = transforms.Compose([
 ])
 
 chosen_datasets = {}
-data_train = datasets.ImageFolder(os.path.join(data_dir, 'train'), transform =  im_transform)
-data_test = datasets.ImageFolder(os.path.join(data_dir, 'val'), transform =  im_transform)
+data_train = datasets.ImageFolder(os.path.join(data_dir, 'train'),
+                                  transform = im_transform)
+data_test = datasets.ImageFolder(os.path.join(data_dir, 'val'),
+                                 transform = im_transform)
+data_false_fonts = datasets.ImageFolder(os.path.join(data_dir, 'false_fonts'),
+                                        transform = im_transform)
 ################################
 
-train_loader = torch.utils.data.DataLoader(data_train, batch_size=args.batch_size, shuffle=True, **kwargs)
-test_loader = torch.utils.data.DataLoader(data_test, batch_size=args.test_batch_size, shuffle=True, **kwargs)
+train_loader = torch.utils.data.DataLoader(data_train,
+                                           batch_size=args.batch_size,
+                                           shuffle=True, **kwargs)
+test_loader = torch.utils.data.DataLoader(data_test,
+                                          batch_size=args.test_batch_size,
+                                          shuffle=True, **kwargs)
+ff_loader = torch.utils.data.DataLoader(data_false_fonts,
+                                        batch_size=args.test_batch_size,
+                                        shuffle=True, **kwargs)
+
 
 print('latent size:', args.latent_size)
 
@@ -143,21 +155,24 @@ optimizer = optim.Adam(model.parameters(), lr=args.learning_rate)
 
 if __name__ == "__main__":
     start_epoch = model.load_last_model(args.model_path, hyperparams) + 1
-    train_losses, test_losses = utils.read_log(args.log_path, ([], []))
+    train_losses, test_losses, ff_losses = utils.read_log(args.log_path, ([], [], []))
 
     for epoch in range(start_epoch, args.epochs + 1):
         train_loss, original_images_train, rect_images_train = train(model, device, train_loader, optimizer,
                                                                      epoch, args.print_interval, return_images=12)
         test_loss, original_images_test, rect_images_test = test(model, device, test_loader, return_images=12)
+        ff_loss, original_images_ff, rect_images_ff = test(model, device, ff_loader, return_images=12)
 
         path_comparison = os.path.join(args.compare_path, hyperparams)
         os.makedirs(path_comparison, exist_ok=True)
-        save_image(original_images_train + rect_images_train + original_images_test + rect_images_test,
+        save_image(original_images_train + rect_images_train + original_images_test + rect_images_test + original_images_ff + rect_images_ff,
                    os.path.join(path_comparison, f'{epoch}.png'),
                    padding=0, nrow=len(original_images_train))
 
         train_losses.append((epoch, train_loss))
         test_losses.append((epoch, test_loss))
-        utils.write_log(args.log_path, (train_losses, test_losses))
+        ff_losses.append((epoch, ff_loss))
+        utils.write_log(args.log_path, (train_losses, test_losses, ff_losses))
 
         model.save_model(os.path.join(args.model_path, f'{hyperparams}{epoch}.pt'))
+
