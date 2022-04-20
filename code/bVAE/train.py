@@ -175,3 +175,4 @@ if __name__ == "__main__":
         utils.write_log(args.log_path, (train_losses, test_losses, ff_losses))
 
         model.save_model(os.path.join(args.model_path, f'{hyperparams}{epoch}.pt'))
+
