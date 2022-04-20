@@ -92,6 +92,7 @@ for batch_idx, (data, img_id) in enumerate(zip(data_loader, img_ids)):
     
     pertubed_reconstructed = []
     for i_z in range(z.shape[1]):
+        # pertubed_reconstructed.append(image_with_unit_number(i_z))
         for pert in perts:
             z_pertubed = z.clone()
             z_pertubed[0, i_z] += pert
@@ -101,4 +102,4 @@ for batch_idx, (data, img_id) in enumerate(zip(data_loader, img_ids)):
     
     save_image(pertubed_reconstructed,
                        os.path.join(path_comparison, f'{img_id}.png'),
-                       padding=0, nrow=len(perts))
+                       padding=0, nrow=len(perts)+1) # plos one for the index image
