@@ -20,9 +20,9 @@ im_transform = transforms.Compose([
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--beta', default=1, type=float)
-parser.add_argument('--latent-size', default=128, type=int)
-parser.add_argument('--batch-size', default=64, type=int)
-parser.add_argument('--learning-rate', default=0.001, type=float)
+parser.add_argument('--latent-size', default=16, type=int)
+parser.add_argument('--batch-size', default=128, type=int)
+parser.add_argument('--learning-rate', default=0.01, type=float)
 parser.add_argument('--epochs', default=300, type=float)
 parser.add_argument('--image-path',
                     default='../../data/letters/train/')
@@ -58,18 +58,16 @@ def get_imgs(img_ids, list_imgs):
     return IXs
 
 
+letters = list('abcdefghijklmnopqrstuvwxyz')
 
-
-img_ids = ['word_a_size_15_xshift_0_yshift_2_font_arial_upper_0_',
-           'word_c_size_15_xshift_0_yshift_2_font_arial_upper_0_',
-           'word_h_size_15_xshift_0_yshift_2_font_arial_upper_0_']
+img_ids = [f'word_{l}_size_15_xshift_0_yshift_0_font_arial_upper_0_' for l in letters]
 
 
 n=3
 kwargs = {'num_workers': multiprocessing.cpu_count(),
           'pin_memory': True} if use_cuda else {}
 data_dir = '../../data/letters/'
-dataset = datasets.ImageFolder(os.path.join(data_dir, 'train'),
+dataset = datasets.ImageFolder(os.path.join(data_dir),
                                transform = im_transform)
 IXs_imgs = get_imgs(img_ids, dataset.imgs)
 
@@ -81,18 +79,21 @@ model = models.BetaVAE(latent_size=args.latent_size,
                        beta = args.beta).to(device)
 start_epoch = model.load_last_model(args.model_path, hyperparams) + 1
 
-path_comparison = os.path.join(args.compare_path, hyperparams)
+path_comparison = os.path.join(args.compare_path, hyperparams[:-1])
 os.makedirs(path_comparison, exist_ok=True)
 
-perts = range(-10, 11, 2)
+perts = np.arange(-5, 5.5, 0.5)
 original_images, rect_images = [], []
-for batch_idx, (data, img_id) in enumerate(zip(data_loader, img_ids)):
-    output, mu, logvar = model(data[0])
-    z = get_z(data[0][0], model, device)
-    
+
+for i_z in range(args.latent_size):
     pertubed_reconstructed = []
-    for i_z in range(z.shape[1]):
-        # pertubed_reconstructed.append(image_with_unit_number(i_z))
+    list_imgs = []
+    for data, img_id in zip(data_loader, img_ids):
+        list_imgs.append((data, img_id))
+    list_imgs.sort(key=lambda x: x[1])
+    for data, img_id in list_imgs:
+        output, mu, logvar = model(data[0])
+        z = get_z(data[0][0], model, device)    
         for pert in perts:
             z_pertubed = z.clone()
             z_pertubed[0, i_z] += pert
@@ -101,5 +102,5 @@ for batch_idx, (data, img_id) in enumerate(zip(data_loader, img_ids)):
             pertubed_reconstructed.append(curr_img[0])
     
     save_image(pertubed_reconstructed,
-                       os.path.join(path_comparison, f'{img_id}.png'),
-                       padding=0, nrow=len(perts)+1) # plos one for the index image
+                       os.path.join(path_comparison, f'unit{i_z+1}_{hyperparams[:-1]}.png'),
+                       padding=0, nrow=len(perts))
